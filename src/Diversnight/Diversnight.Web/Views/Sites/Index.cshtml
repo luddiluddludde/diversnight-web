@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Diversnight.Web.Models.Site>
+
+@{
+    ViewBag.Title = "Dive sites";
+}
+
+<h2>Dive sites</h2>
+<p>All registered dive sites are listed below.</p>
+<p>
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary"})
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.City)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Organization)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Webpage)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>2014</th>
+        <th>2013</th>
+        <th>2012</th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>@Html.DisplayFor(modelItem => item.Country.Name)</td>
+        <td>
+            @Html.DisplayFor(modelItem => item.City)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Organization)
+        </td>
+        <td>
+            @{
+                Uri uriResult;
+                bool fooresult = Uri.TryCreate(item.Webpage, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                if (fooresult)
+                {
+                    <a href="@item.Webpage" target="_new">
+                        @(item.Webpage.Length > 100 ? item.Webpage.Substring(0, 100) + "..." : item.Webpage)
+                    </a>
+                }
+                else
+                {
+                    @item.Webpage
+                }
+            }
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @{ var result = item.Results.FirstOrDefault(r => r.Year == 2014); }
+            @if (result != null) { 
+                @result.Divers
+            }</td>
+        <td>
+            @{ result = item.Results.FirstOrDefault(r => r.Year == 2013); }
+            @if (result != null) { 
+                @result.Divers
+            }
+        </td>
+        <td>
+            @{ result = item.Results.FirstOrDefault(r => r.Year == 2012); }
+            @if (result != null)
+            {
+                @result.Divers
+            }
+        </td>
+    </tr>
+}
+
+</table>

@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "Import";
+}
+
+<h2>Import</h2>
+
+@using (Html.BeginForm("Import", "Sites",
+                               FormMethod.Post,
+                               new { enctype = "multipart/form-data", @class="form-signin", role = "form"})) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-group">
+        <label for="file">Dive sites import file</label>
+        <input type="file" id="file" name="file">
+        <p class="help-block">Only Thomas' special csv format works.</p>
+    </div>
+
+    <button type="submit" class="btn btn-default">Submit</button>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

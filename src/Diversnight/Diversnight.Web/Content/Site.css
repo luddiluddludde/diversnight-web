@@ -1,6 +1,14 @@
-﻿body {
+﻿html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     padding-top: 50px;
     padding-bottom: 20px;
+    background: #193441;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -21,4 +29,14 @@ input,
 select,
 textarea {
     max-width: 280px;
+}
+
+.well {
+    background: #3E606F;
+    color: #B2D4DC;
+    border: none;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -o-border-radius: 0;
+    border-radius: 0;
 }
