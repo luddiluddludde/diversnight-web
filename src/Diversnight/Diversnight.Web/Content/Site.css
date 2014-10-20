@@ -174,3 +174,7 @@ p {
 .white-quote p {
     font-style: italic;
 }
+
+.well.well-grey {
+    background: #808080;
+}
