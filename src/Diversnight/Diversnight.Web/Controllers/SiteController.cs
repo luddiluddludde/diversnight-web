@@ -7,12 +7,28 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Diversnight.Web.Models;
+using Microsoft.Ajax.Utilities;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace Diversnight.Web.Controllers
 {
     public class SiteController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private ApplicationUserManager _userManager;
+
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            private set
+            {
+                _userManager = value;
+            }
+        }
 
         // GET: Site
         public ActionResult Index()
@@ -36,9 +52,35 @@ namespace Diversnight.Web.Controllers
         }
 
         // GET: Site/Create
-        public ActionResult Create()
+        [Authorize]
+        public ActionResult Register()
         {
-            return View();
+            var user = UserManager.FindById(User.Identity.GetUserId());
+
+            var orgItems = new List<SelectListItem>()
+            {
+                new SelectListItem()
+                {
+                    Text = user.Contact.Organizer.Name,
+                    Value = user.Contact.Organizer.Id.ToString(),
+                    Selected = true
+                }
+            };
+
+            var countryItems = db.Countries.ToList().Select(
+                country => new SelectListItem()
+                {
+                    Text = country.Name,
+                    Value = country.Id.ToString()
+                }).ToList();
+
+            var model = new RegisterSiteViewModel
+            {
+                Organizations = orgItems,
+                Countries = countryItems
+            };
+
+            return View(model);
         }
 
         // POST: Site/Create
@@ -46,7 +88,7 @@ namespace Diversnight.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Year,TimeZone,Latitude,Longitude,City,Name,Description")] Site site)
+        public ActionResult Register([Bind(Include = "Id,Year,TimeZone,Latitude,Longitude,City,Name,Description")] Site site)
         {
             if (ModelState.IsValid)
             {
