@@ -9,16 +9,32 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Diversnight.Web.Models;
 using Microsoft.Ajax.Utilities;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace Diversnight.Web.Controllers
 {
     public class OrgController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private ApplicationUserManager _userManager;
+
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            private set
+            {
+                _userManager = value;
+            }
+        }
 
         // GET: Org
         public ActionResult Index()
@@ -39,6 +55,34 @@ namespace Diversnight.Web.Controllers
                 return HttpNotFound();
             }
             return View(organization);
+        }
+
+        // GET: Site/Edit/5
+        public ActionResult Claim(int? id)
+        {
+            if (!User.IsInRole("Admin"))
+                return HttpNotFound();
+
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var org = db.Organizations.Find(id);
+            if (org == null)
+                return HttpNotFound();
+
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            if (user == null)
+                return HttpNotFound();
+
+            var contact = user.Contact;
+            if (contact == null)
+                return HttpNotFound();
+
+            org.Contacts.Add(db.Contacts.FirstOrDefault(c => c.Id == contact.Id));
+            db.SaveChanges();
+
+            return RedirectToAction("Details", "Org", new {id = id});
         }
 
         public ActionResult Import()
