@@ -56,29 +56,31 @@ namespace Diversnight.Web.Controllers
         public ActionResult Register()
         {
             var user = UserManager.FindById(User.Identity.GetUserId());
+            var model = new RegisterSiteViewModel();
 
-            var orgItems = new List<SelectListItem>()
+            if (user.Contact != null && user.Contact.Organizer != null)
             {
-                new SelectListItem()
-                {
-                    Text = user.Contact.Organizer.Name,
-                    Value = user.Contact.Organizer.Id.ToString(),
-                    Selected = true
-                }
-            };
 
-            var countryItems = db.Countries.ToList().Select(
-                country => new SelectListItem()
+                var orgItems = new List<SelectListItem>()
                 {
-                    Text = country.Name,
-                    Value = country.Id.ToString()
-                }).ToList();
+                    new SelectListItem()
+                    {
+                        Text = user.Contact.Organizer.Name,
+                        Value = user.Contact.Organizer.Id.ToString(),
+                        Selected = true
+                    }
+                };
 
-            var model = new RegisterSiteViewModel
-            {
-                Organizations = orgItems,
-                Countries = countryItems
-            };
+                var countryItems = db.Countries.ToList().Select(
+                    country => new SelectListItem()
+                    {
+                        Text = country.Name,
+                        Value = country.Id.ToString()
+                    }).ToList();
+
+                model.Organizations = orgItems;
+                model.Countries = countryItems;
+            }
 
             return View(model);
         }

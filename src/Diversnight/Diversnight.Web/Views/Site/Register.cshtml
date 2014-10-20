@@ -7,84 +7,91 @@
 
 <h2>Register a dive site</h2>
 
-@using (Html.BeginForm(new {role = "form", @class = "form-horizontal"}))
+@if (Model.Organizations != null)
 {
-    @Html.AntiForgeryToken()
+    using (Html.BeginForm(new {role = "form", @class = "form-horizontal"}))
+    {
+        @Html.AntiForgeryToken()
 
-    <p>Enter the information below or copy from last year, and click Register.</p>
+        <p>Enter the information below or copy from last year, and click Register.</p>
 
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    <div class="row">
-        <div class="col-md-8">
+        @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+        <div class="row">
+            <div class="col-md-8">
 
-            <div class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <h4>General information</h4>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <h4>General information</h4>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Organization, new {@class = "col-sm-2 control-label"})
+                        <div class="col-sm-10">
+                            @Html.DropDownListFor(m => m.Organization, Model.Organizations, "Choose organization...", new {@class = "form-control"})
+                            @Html.ValidationMessageFor(model => model.Organization, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Name, new {@class = "col-sm-2 control-label"})
+                        <div class="col-sm-10">
+                            @Html.EditorFor(m => m.Name, new {htmlAttributes = new {@class = "form-control", placeholder = "Enter site name"}})
+                            @Html.ValidationMessageFor(model => model.Name, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Description, new {@class = "col-sm-2 control-label"})
+                        <div class="col-sm-10">
+                            @Html.EditorFor(m => m.Description, new {htmlAttributes = new {@class = "form-control", placeholder = "Event description, directions etc."}})
+                            @Html.ValidationMessageFor(model => model.Description, "", new {@class = "text-danger"})
+                        </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    @Html.LabelFor(m => m.Organization, new {@class = "col-sm-2 control-label"})
-                    <div class="col-sm-10">
-                        @Html.DropDownListFor(m => m.Organization, Model.Organizations, "Choose organization...", new {@class = "form-control"})
-                        @Html.ValidationMessageFor(model => model.Organization, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(m => m.Name, new {@class = "col-sm-2 control-label"})
-                    <div class="col-sm-10">
-                        @Html.EditorFor(m => m.Name, new {htmlAttributes = new {@class = "form-control", placeholder = "Enter site name"}})
-                        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(m => m.Description, new { @class = "col-sm-2 control-label" })
-                    <div class="col-sm-10">
-                        @Html.EditorFor(m => m.Description, new { htmlAttributes = new { @class = "form-control", placeholder = "Event description, directions etc." } })
-                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-            </div>
             
-            <div class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <h4>Location</h4>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <h4>Location</h4>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(m => m.City, new { @class = "col-sm-2 control-label" })
-                    <div class="col-sm-10">
-                        @Html.EditorFor(m => m.City, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter city" } })
-                        @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.City, new {@class = "col-sm-2 control-label"})
+                        <div class="col-sm-10">
+                            @Html.EditorFor(m => m.City, new {htmlAttributes = new {@class = "form-control", placeholder = "Enter city"}})
+                            @Html.ValidationMessageFor(model => model.City, "", new {@class = "text-danger"})
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(m => m.Country, new { @class = "col-sm-2 control-label" })
-                    <div class="col-sm-10">
-                        @Html.DropDownListFor(m => m.Country, Model.Countries, "Choose country...", new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.Country, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Country, new {@class = "col-sm-2 control-label"})
+                        <div class="col-sm-10">
+                            @Html.DropDownListFor(m => m.Country, Model.Countries, "Choose country...", new {@class = "form-control"})
+                            @Html.ValidationMessageFor(model => model.Country, "", new {@class = "text-danger"})
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-primary">Register site</button>
-                        <button id="copyLastYearButton" type="button" class="btn btn-default">Copy from last year</button>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-primary">Register site</button>
+                            <button id="copyLastYearButton" type="button" class="btn btn-default">Copy from last year</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-12">
+            <div class="col-md-4">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-12">
 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+}
+else
+{
+    <p>Sorry, you must be connected to an organization before you register a dive site.</p>
 }
 
 @section Scripts {
