@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
+using Mandrill;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
@@ -18,8 +21,22 @@ namespace Diversnight.Web
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            return SendMandrillMail(message);
+        }
+
+        private Task SendMandrillMail(IdentityMessage message)
+        {
+            var mandrill = new MandrillApi(Config.Mandrill.ApiKey);
+            var email = new EmailMessage()
+            {
+                to = new List<EmailAddress> {new EmailAddress(message.Destination)},
+                subject = message.Subject
+            };
+
+            email.AddRecipientVariable(message.Destination, "SUBJECT", message.Subject);
+            email.AddRecipientVariable(message.Destination, "BODY", message.Body);
+
+            return mandrill.SendMessageAsync(email, "confirm-email", null);
         }
     }
 
@@ -42,7 +59,7 @@ namespace Diversnight.Web
 
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context) 
         {
-            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<DiversnightDbContext>()));
+            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
             // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {
@@ -54,8 +71,8 @@ namespace Diversnight.Web
             manager.PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
-                RequireNonLetterOrDigit = true,
-                RequireDigit = true,
+                RequireNonLetterOrDigit = false,
+                RequireDigit = false,
                 RequireLowercase = true,
                 RequireUppercase = true,
             };

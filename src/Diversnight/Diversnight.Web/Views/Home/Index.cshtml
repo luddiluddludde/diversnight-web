@@ -1,21 +1,70 @@
-﻿@using Microsoft.Ajax.Utilities
+﻿@using Diversnight.Web.Controllers
+@using Diversnight.Web.Models
 @{
-    ViewBag.Title = "Welcome to Diversnight 2014";
+    ViewBag.Title = "Diversnight 2014";
 }
 
-<div class="jumbotron">
-    <h1>Diversnight 2014</h1>
-</div>
+    <div class="row">
 
-<div class="row">
-    <div class="col-md-3"><div class="well"><span style="font-weight: bold; font-size: 80px;">
-        @ViewBag.Divers2011
-    </span><br />divers in 2011</div></div>
-    <div class="col-md-3"><div class="well"><span style="font-weight: bold; font-size: 80px;">
-    @ViewBag.Divers2012
-    </span><br />divers in 2012</div></div>
-    <div class="col-md-3"><div class="well"><span style="font-weight: bold; font-size: 80px;">
-    @ViewBag.Divers2013                                            
-    </span><br />divers in 2013</div></div>
-    <div class="col-md-3"><div class="well"><span style="font-weight: bold; font-size: 30px; ">2014? Register your dive site now!</span></div></div>
-</div>
+        <div class="col-md-4">
+            <div class="well half-height">
+                @ViewBag.SiteCount sites in @ViewBag.CountryCount countries registered for @ViewBag.CountYear
+            </div>
+
+            <div class="well half-height">
+                @Html.ActionLink("Register your dive site now!", "Register", "Site", null, new { @class = "large-link" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+                <div id="insta-carousel" class="carousel slide" data-ride="carousel">
+
+                    <!-- Wrapper for slides -->
+                    <div class="carousel-inner">
+                        @{
+                            int count = 0;
+                        }
+
+                        @foreach (InstagramPicture picture in ViewBag.Pictures)
+                        {
+                            <div class="@(count == 0 ? "item active" : "item")">
+                                <a href="@picture.Url"><img src="@picture.ImageUrl" /></a>
+                                <div class="carousel-caption">
+                                    @picture.Caption
+                                </div>
+                            </div>
+                            count++;
+                        }
+                    </div>
+
+                    <!-- Controls -->
+                    <a class="left carousel-control" href="#insta-carousel" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                    </a>
+                    <a class="right carousel-control" href="#insta-carousel" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"></span>
+                    </a>
+                </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="well half-height">
+                Your pictures here? Tag your instagram photos with #diversnight or #diversnight2014 and they will be added automatically!
+            </div>
+
+            <div class="well half-height">
+                <div class="center-this">
+                    
+                    @Html.ActionLink("View the full gallery", "Index", "Instagram", null, new { @class = "large-link" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @section Scripts {
+        <script>
+            $('.carousel').carousel()
+        </script>
+    }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -56,6 +57,18 @@ namespace Diversnight.Web.Controllers
                 Logins = await UserManager.GetLoginsAsync(User.Identity.GetUserId()),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
             };
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            if (user.Contact != null) { 
+                model.Contact = user.Contact;
+
+                if (user.Contact.Organizer != null)
+                    model.Organization = user.Contact.Organizer;
+            }
+
+
+
+
+            ViewBag.Roles = UserManager.GetRoles(User.Identity.GetUserId());
             return View(model);
         }
 
@@ -264,6 +277,27 @@ namespace Diversnight.Web.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
+        public ActionResult ConnectContact()
+        {
+            var db = new ApplicationDbContext();
+            var user = db.Users.Find(User.Identity.GetUserId());
+            if (user == null)
+                return Content("Error, did not find user");
+
+            if (user.Contact != null)
+                return Content("Contact is already connected!");
+
+            var contact = db.Contacts.FirstOrDefault(c => c.Email == user.Email);
+            if (contact == null)
+                return Content("Error, did not find contact");
+
+            user.Contact = contact;
+            db.SaveChanges();
+
+            return Content("Contact now connected!");
+        }
+
 
         //
         // GET: /Manage/ManageLogins

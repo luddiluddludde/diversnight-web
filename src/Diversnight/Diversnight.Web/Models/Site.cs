@@ -1,39 +1,35 @@
-using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Diversnight.Web.Models
 {
     public class Site
     {
-        public Site()
-        {
-            Results = new List<SiteResult>();
-        }
-
         public int Id { get; set; }
 
-        public virtual Country Country { get; set; }
-        public virtual TimeZone TimeZone { get; set; }
+        [Required]
+        [Range(2000, 2100)]
+        public int Year { get; set; }
+
+        [Required]
+        public virtual Organization Organization { get; set; }
+
+        [Required]
+        public int TimeZone { get; set; }
 
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
 
+        public virtual Country Country { get; set; }
+
+        [Required]
         public string City { get; set; }
+
+        [Required]
         public string Name { get; set; }
 
-        public string Organization { get; set; }
-        public string Webpage { get; set; }
-
+        [DataType(DataType.MultilineText)]
         public string Description { get; set; }
 
-        public virtual ICollection<SiteResult> Results { get; set; }
-    }
-
-    public class SiteResult
-    {
-        public int Id { get; set; }
-        public int Year { get; set; }
         public int Divers { get; set; }
-        public bool HasCompleted { get; set; }
     }
 }

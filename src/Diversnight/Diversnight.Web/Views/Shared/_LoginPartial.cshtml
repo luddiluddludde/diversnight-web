@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNet.Identity
+﻿@using Diversnight.Web.Models
+@using Microsoft.AspNet.Identity
+@using Microsoft.AspNet.Identity.EntityFramework
 @if (Request.IsAuthenticated)
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
@@ -7,7 +9,14 @@
 
     <ul class="nav navbar-nav navbar-right">
         <li>
-            @Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+            @{
+                var currentUserId = User.Identity.GetUserId();
+                var manager = new UserManager<ApplicationUser>
+                    (new UserStore<ApplicationUser>
+                        (new ApplicationDbContext()));
+                    var  currentUser = manager.FindById(User.Identity.GetUserId());
+            }
+            @Html.ActionLink("Hello " + ((currentUser != null && currentUser.Contact != null) ? currentUser.Contact.Firstname : User.Identity.Name) + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
         </li>
         <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
     </ul>

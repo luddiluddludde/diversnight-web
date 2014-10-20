@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Diversnight.Web.Models.Country>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Countries</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            Sites
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @item.Sites.Count
+        </td>
+    </tr>
+}
+</table>
+
+<small>If your country is missing from this list, noone has registered a dive site in that country yet. @Html.ActionLink("Be the first!", "Register", "Site")</small>

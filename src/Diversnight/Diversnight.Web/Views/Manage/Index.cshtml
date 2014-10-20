@@ -1,80 +1,96 @@
 ﻿@model Diversnight.Web.Models.IndexViewModel
 @{
-    ViewBag.Title = "Manage";
+    ViewBag.Title = "Manage your profile";
 }
 
-<h2>@ViewBag.Title.</h2>
+<h2>@ViewBag.Title</h2>
 
 <p class="text-success">@ViewBag.StatusMessage</p>
-<div>
-    <h4>Change your account settings</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>Password:</dt>
-        <dd>
-            [
-            @if (Model.HasPassword)
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Contact information:</h3>
+        <div class="well">
+            @if (Model.Contact == null)
             {
-                @Html.ActionLink("Change your password", "ChangePassword")
+                <p>No contact information. Please add.</p>
             }
             else
             {
-                @Html.ActionLink("Create", "SetPassword")
+                <dl class="dl-horizontal">
+                    <dt>Name:</dt>
+                    <dd>@Model.Contact.Firstname @Model.Contact.Lastname</dd>
+
+                    <dt>Email:</dt>
+                    <dd>@Model.Contact.Email</dd>
+
+                    <dt>Phone:</dt>
+                    <dd>@Model.Contact.Phone</dd>
+                </dl>
             }
-            ]
-        </dd>
-        <dt>External Logins:</dt>
-        <dd>
-            @Model.Logins.Count [
-            @Html.ActionLink("Manage", "ManageLogins") ]
-        </dd>
-        @*
-            Phone Numbers can used as a second factor of verification in a two-factor authentication system.
-             
-             See <a href="http://go.microsoft.com/fwlink/?LinkId=313242">this article</a>
-                for details on setting up this ASP.NET application to support two-factor authentication using SMS.
-             
-             Uncomment the following block after you have set up two-factor authentication
-        *@
-        @*  
-            <dt>Phone Number:</dt>
-            <dd>
-                @(Model.PhoneNumber ?? "None") [
-                @if (Model.PhoneNumber != null)
-                {
-                    @Html.ActionLink("Change", "AddPhoneNumber")
-                    @: &nbsp;|&nbsp;
-                    @Html.ActionLink("Remove", "RemovePhoneNumber")
-                }
-                else
-                {
-                    @Html.ActionLink("Add", "AddPhoneNumber")
-                }
-                ]
-            </dd>
-        *@
-        <dt>Two-Factor Authentication:</dt>
-        <dd>
-            <p>
-                There are no two-factor authentication providers configured. See <a href="http://go.microsoft.com/fwlink/?LinkId=313242">this article</a>
-                for details on setting up this ASP.NET application to support two-factor authentication.
-            </p>
-            @*@if (Model.TwoFactor)
-                {
+        </div>
+    </div>
+    <div class="col-md-6">
 
-                    <form method="post" action="/Manage/DisableTwoFactorAuthentication">
-                        Enabled
-                        <input type="submit" value="Disable" class="btn btn-link" />
-                    </form>
-                }
-                else
-                {
+        <h3>Your organization:</h3>
+        @if (Model.Organization == null)
+        {
+            <p>No connected organization. Claim or create one.</p>
+        }
+        else
+        {
+            <div class="well">
 
-                    <form method="post" action="/Manage/EnableTwoFactorAuthentication">
-                        Disabled
-                        <input type="submit" value="Enable" class="btn btn-link" />
-                    </form>
-                }*@
-        </dd>
-    </dl>
+                <h4>@Model.Organization.Name</h4>
+                <p>@Html.DisplayFor(model => model.Organization.Website)</p>
+                <p><em>@(!string.IsNullOrWhiteSpace(Model.Organization.Description) ? Model.Organization.Description : "No description")</em></p>
+            </div>
+            <div class="btn-group pull-right">
+                <a class="btn btn-default">Manage</a>
+                <a class="btn btn-danger">Disconnect</a>
+            </div>
+        }
+    </div>
 </div>
+        <hr />
+        <div>
+            <h3>Account settings</h3>
+            <dl class="dl-horizontal">
+                <dt>Password:</dt>
+                <dd>
+                    [
+                    @if (Model.HasPassword)
+                    {
+                        @Html.ActionLink("Change your password", "ChangePassword")
+                    }
+                    else
+                    {
+                        @Html.ActionLink("Create", "SetPassword")
+                    }
+                    ]
+                </dd>
+                <dt>External Logins:</dt>
+                <dd>
+                    @Model.Logins.Count [
+                    @Html.ActionLink("Manage", "ManageLogins") ]
+                </dd>
+
+                <dt>Roles:</dt>
+                <dd>
+                    @foreach (string role in ViewBag.Roles)
+                    {
+                        @role
+                    }
+                </dd>
+                @if (Model.Contact != null)
+                {
+                    <dt>Contact:</dt>
+                    <dd>@Model.Contact.Firstname @Model.Contact.Lastname</dd>
+                }
+                else
+                {
+                    <dt>Contact:</dt>
+                    <dd>No connected contact</dd>
+                }
+            </dl>
+        </div>

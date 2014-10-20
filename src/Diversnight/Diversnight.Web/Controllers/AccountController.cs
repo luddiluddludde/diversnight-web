@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -39,6 +41,14 @@ namespace Diversnight.Web.Controllers
             }
         }
 
+
+        public ActionResult MakeMeAdmin()
+        {
+            UserManager.AddToRole(User.Identity.GetUserId(), "Admin");
+
+            return RedirectToAction("Index", "Home");
+        }
+
         //
         // GET: /Account/Login
         [AllowAnonymous]
@@ -69,6 +79,16 @@ namespace Diversnight.Web.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
+            }
+
+            var db = new ApplicationDbContext();
+            var contact = db.Contacts.FirstOrDefault(c => c.Email == model.Email);
+            var userX = db.Users.FirstOrDefault(u => u.Email == model.Email);
+
+            if (contact != null && userX != null && userX.Contact == null)
+            {
+                userX.Contact = contact;
+                db.SaveChanges();
             }
 
             // This doesn't count login failures towards account lockout
@@ -158,15 +178,32 @@ namespace Diversnight.Web.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+
+                    var db = new ApplicationDbContext();
+                    var contact = db.Contacts.FirstOrDefault(c => c.Email.ToLower() == user.Email.ToLower());
+                    var userX = db.Users.FirstOrDefault(u => u.Email.ToLower() == user.Email.ToLower());
+
+                    if (contact != null && userX != null && userX.Contact == null)
+                    {
+                        userX.Contact = contact;
+                        db.SaveChanges();
+                    }
+
+                    //await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a target=\"_blank\" href=\"" + callbackUrl + "\" mc:disable-tracking>here</a>");
 
-                    return RedirectToAction("Index", "Home");
+                    // Uncomment to debug locally 
+                    // TempData["ViewBagLink"] = callbackUrl;
+
+                    ViewBag.Message = "Check your email and confirm your account, you must be confirmed "
+                                    + "before you can log in.";
+
+                    return View("Info");
                 }
                 AddErrors(result);
             }
@@ -185,6 +222,13 @@ namespace Diversnight.Web.Controllers
                 return View("Error");
             }
             var result = await UserManager.ConfirmEmailAsync(userId, code);
+            if (result.Succeeded)
+            {
+                var user = UserManager.FindById(userId);
+                await SignInManager.SignInAsync(user, isPersistent: true, rememberBrowser: false);
+                return RedirectToAction("Index", "Home");
+            }
+
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
@@ -214,10 +258,11 @@ namespace Diversnight.Web.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a target=\"_blank\" href=\"" + callbackUrl + "\" mc:disable-tracking>here</a>");
+
+                return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // If we got this far, something failed, redisplay form
@@ -331,6 +376,16 @@ namespace Diversnight.Web.Controllers
                 return RedirectToAction("Login");
             }
 
+            var db = new ApplicationDbContext();
+            var contact = db.Contacts.FirstOrDefault(c => c.Email.ToLower() == loginInfo.Email.ToLower());
+            var userX = db.Users.FirstOrDefault(u => u.Email.ToLower() == loginInfo.Email.ToLower());
+
+            if (contact != null && userX != null && userX.Contact == null)
+            {
+                userX.Contact = contact;
+                db.SaveChanges();
+            }
+
             // Sign in the user with this external login provider if the user already has a login
             var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
             switch (result)
@@ -387,6 +442,34 @@ namespace Diversnight.Web.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View(model);
         }
+
+        // GET: User/Create
+        public ActionResult AddRoleToUser()
+        {
+            var selectList = UserManager.Users.OrderBy(u => u.Email)
+                    .Select(user => new SelectListItem() {Text = user.Email, Value = user.Id})
+                    .ToList();
+            ViewBag.UsersSelectList = selectList;
+
+            return View();
+        }
+
+        // POST: User/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddRoleToUser(AddRoleViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = UserManager.FindById(model.UserId);
+                var result = UserManager.AddToRole(model.UserId, model.RoleId);
+            }
+
+            return View();
+        }
+
 
         //
         // POST: /Account/LogOff

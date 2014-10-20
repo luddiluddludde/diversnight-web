@@ -7,7 +7,7 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0B048FF7-A75B-4A72-8E11-89AC676BD786}</ProjectGuid>
+    <ProjectGuid>{B0C01078-8479-4435-A6E2-06C3DDF66AF6}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -39,7 +39,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.2.8.2\lib\net40-client\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="Mandrill">
+      <HintPath>..\packages\Mandrill.1.0.93\lib\net40\Mandrill.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.104.4.0\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -106,6 +115,15 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.0\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.0\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -158,34 +176,44 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\CountriesController.cs" />
+    <Compile Include="Controllers\ContactsController.cs" />
+    <Compile Include="Controllers\CountryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InstagramController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
-    <Compile Include="Controllers\SitesController.cs" />
-    <Compile Include="Controllers\TimeZonesController.cs" />
+    <Compile Include="Controllers\OrgController.cs" />
+    <Compile Include="Controllers\SiteController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\Country.cs" />
-    <Compile Include="Models\DiversnightDbContext.cs" />
-    <Compile Include="Models\ApplicationUser.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\InstagramPicture.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\Site.cs" />
-    <Compile Include="Models\TimeZone.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\logo.png" />
+    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <None Include="Properties\PublishProfiles\diversnight - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\diversnight - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -236,22 +264,34 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Countries\Create.cshtml" />
-    <Content Include="Views\Countries\Delete.cshtml" />
-    <Content Include="Views\Countries\Details.cshtml" />
-    <Content Include="Views\Countries\Edit.cshtml" />
-    <Content Include="Views\Countries\Index.cshtml" />
-    <Content Include="Views\TimeZones\Create.cshtml" />
-    <Content Include="Views\TimeZones\Delete.cshtml" />
-    <Content Include="Views\TimeZones\Details.cshtml" />
-    <Content Include="Views\TimeZones\Edit.cshtml" />
-    <Content Include="Views\TimeZones\Index.cshtml" />
-    <Content Include="Views\Sites\Create.cshtml" />
-    <Content Include="Views\Sites\Delete.cshtml" />
-    <Content Include="Views\Sites\Details.cshtml" />
-    <Content Include="Views\Sites\Edit.cshtml" />
-    <Content Include="Views\Sites\Index.cshtml" />
-    <Content Include="Views\Sites\Import.cshtml" />
+    <Content Include="Views\Country\Create.cshtml" />
+    <Content Include="Views\Country\Delete.cshtml" />
+    <Content Include="Views\Country\Details.cshtml" />
+    <Content Include="Views\Country\Edit.cshtml" />
+    <Content Include="Views\Country\Index.cshtml" />
+    <Content Include="Views\Errors\_Unauthorized.cshtml" />
+    <Content Include="Views\Shared\Info.cshtml" />
+    <Content Include="Views\Contacts\Create.cshtml" />
+    <Content Include="Views\Contacts\Delete.cshtml" />
+    <Content Include="Views\Contacts\Details.cshtml" />
+    <Content Include="Views\Contacts\Edit.cshtml" />
+    <Content Include="Views\Contacts\Index.cshtml" />
+    <Content Include="Views\Org\Create.cshtml" />
+    <Content Include="Views\Org\Delete.cshtml" />
+    <Content Include="Views\Org\Details.cshtml" />
+    <Content Include="Views\Org\Edit.cshtml" />
+    <Content Include="Views\Org\Index.cshtml" />
+    <Content Include="Views\Site\Create.cshtml" />
+    <Content Include="Views\Site\Delete.cshtml" />
+    <Content Include="Views\Site\Details.cshtml" />
+    <Content Include="Views\Site\Edit.cshtml" />
+    <Content Include="Views\Site\Index.cshtml" />
+    <Content Include="Views\Org\Import.cshtml" />
+    <Content Include="Views\Users\Index.cshtml" />
+    <Content Include="Views\Account\AddRoleToUser.cshtml" />
+    <Content Include="Views\Home\History.cshtml" />
+    <Content Include="Views\Instagram\Delete.cshtml" />
+    <Content Include="Views\Instagram\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -261,6 +301,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="packages.config" />
+    <None Include="Project_Readme.html" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -276,9 +317,9 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>62938</DevelopmentServerPort>
+          <DevelopmentServerPort>50777</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:62938/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

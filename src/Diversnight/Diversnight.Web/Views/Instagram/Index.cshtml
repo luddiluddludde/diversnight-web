@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Diversnight.Web.Models.InstagramPicture>
+
+@{
+    ViewBag.Title = "Instagram feed";
+}
+
+<h2>Instagram feed</h2>
+<p>Tag your photos with #diversnight or #diversnight2014 to have them appear here automatically.</p>
+
+<div class="row">
+
+    @foreach (var item in Model)
+    {
+        <div class="col-lg-3 col-md-4 col-sm-2">
+            <div class="instagram-frame">
+                <a title="Click to view picture on instagram.com" target="_blank" href="@item.Url">
+                    <img src="@item.ImageUrl" alt="@item.Caption" />
+                </a>
+                <p>
+                    @item.CreatedTime.ToShortDateString()
+                </p>
+            </div>
+        </div>
+    }
+</div>

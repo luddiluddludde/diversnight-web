@@ -1,0 +1,8 @@
+﻿@model Diversnight.Web.Models.AddRoleViewModel
+
+@{
+    ViewBag.Title = "AddRoleToUser";
+}
+<h2>AddRoleToUser</h2>
+
+@Html.DropDownListFor(m => m.UserId, (IEnumerable<SelectListItem>)ViewBag.UsersSelectList, new { @class = "form-control"})

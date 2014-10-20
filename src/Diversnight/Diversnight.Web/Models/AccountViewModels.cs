@@ -15,6 +15,12 @@ namespace Diversnight.Web.Models
         public string ReturnUrl { get; set; }
     }
 
+    public class AddRoleViewModel
+    {
+        public string UserId { get; set; }
+        public string RoleId { get; set; }
+    }
+
     public class SendCodeViewModel
     {
         public string SelectedProvider { get; set; }

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Diversnight.Web.Models.Organization>
+
+@{
+    ViewBag.Title = "Organizations";
+}
+
+<h2>Organizations</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Website)
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink(item.Name, "Details", "Org", new { id = item.Id}, null)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Website)
+        </td>
+    </tr>
+}
+
+</table>

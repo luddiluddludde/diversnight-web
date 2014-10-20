@@ -1,0 +1,36 @@
+﻿@using Microsoft.Ajax.Utilities
+@model Diversnight.Web.Models.Organization
+
+@{
+    ViewBag.Title = @Model.Name;
+}
+
+<h2>@Model.Name</h2>
+<p><a href="@Model.Website">@Model.Website</a></p>
+<p>
+    @Model.Description
+</p>
+<h3>Contact persons</h3>
+@if (Model.Contacts.Count > 0)
+{
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+        </tr>
+        @foreach (var contact in Model.Contacts)
+        {
+            <tr>
+                <td>@contact.Firstname @contact.Lastname</td>
+                <td>@contact.Phone</td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <p>No contacts for this organization.</p>
+}
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

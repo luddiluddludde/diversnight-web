@@ -1,49 +1,176 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Diversnight.Web.Models;
+using Newtonsoft.Json;
 
 namespace Diversnight.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private DiversnightDbContext db = new DiversnightDbContext();
-
         public ActionResult Index()
         {
-            //ViewBag.Divers2011 = db.Results.Where(r => r.Year == 2011).Sum(r => r.Divers);
-            //ViewBag.Divers2012 = db.Results.Where(r => r.Year == 2012).Sum(r => r.Divers);
-            ViewBag.Divers2013 = db.Results.Where(r => r.Year == 2013).Sum(r => r.Divers);
-            var sites = db.Sites.Where(p => p.Results.Any(r => r.Year == 2014)).ToList();
-            ViewBag.Sites = sites;
+            var db = new ApplicationDbContext();
+
+            const int countYear = 2013;
+
+            ViewBag.SiteCount = db.Sites.Count(s => s.Year == countYear);
+            ViewBag.CountryCount = db.Countries.Count(c => c.Sites.Any(s => s.Year == countYear));
+            ViewBag.CountYear = countYear;
+
+            ViewBag.Pictures = db.Pictures.Where(p => p.Deleted == false).OrderByDescending(p => p.CreatedTime).ToList();
 
             return View();
         }
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
 
-
-        protected override void Dispose(bool disposing)
+        public ActionResult History()
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+            return View();
         }
+    }
+    public class Pagination
+    {
+        public string next_max_tag_id { get; set; }
+        public string deprecation_warning { get; set; }
+        public string next_max_id { get; set; }
+        public string next_min_id { get; set; }
+        public string min_tag_id { get; set; }
+        public string next_url { get; set; }
+    }
+
+    public class Meta
+    {
+        public int code { get; set; }
+    }
+
+    public class Location
+    {
+        public double latitude { get; set; }
+        public double longitude { get; set; }
+    }
+
+    public class Comments
+    {
+        public int count { get; set; }
+        public List<object> data { get; set; }
+    }
+
+    public class Likes
+    {
+        public int count { get; set; }
+        public List<object> data { get; set; }
+    }
+
+    public class LowResolution
+    {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+    }
+
+    public class Thumbnail
+    {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+    }
+
+    public class StandardResolution
+    {
+        public string url { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+    }
+
+    public class Images
+    {
+        public LowResolution low_resolution { get; set; }
+        public Thumbnail thumbnail { get; set; }
+        public StandardResolution standard_resolution { get; set; }
+    }
+
+    public class Position
+    {
+        public double y { get; set; }
+        public double x { get; set; }
+    }
+
+    public class User
+    {
+        public string username { get; set; }
+        public string profile_picture { get; set; }
+        public string id { get; set; }
+        public string full_name { get; set; }
+    }
+
+    public class UsersInPhoto
+    {
+        public Position position { get; set; }
+        public User user { get; set; }
+    }
+
+    public class From
+    {
+        public string username { get; set; }
+        public string profile_picture { get; set; }
+        public string id { get; set; }
+        public string full_name { get; set; }
+    }
+
+    public class Caption
+    {
+        public string created_time { get; set; }
+        public string text { get; set; }
+        public From from { get; set; }
+        public string id { get; set; }
+    }
+
+    public class User2
+    {
+        public string username { get; set; }
+        public string website { get; set; }
+        public string profile_picture { get; set; }
+        public string full_name { get; set; }
+        public string bio { get; set; }
+        public string id { get; set; }
+    }
+
+    public class Datum
+    {
+        public object attribution { get; set; }
+        public List<string> tags { get; set; }
+        public string type { get; set; }
+        public Location location { get; set; }
+        public Comments comments { get; set; }
+        public string filter { get; set; }
+        public string created_time { get; set; }
+        public string link { get; set; }
+        public Likes likes { get; set; }
+        public Images images { get; set; }
+        public List<UsersInPhoto> users_in_photo { get; set; }
+        public Caption caption { get; set; }
+        public bool user_has_liked { get; set; }
+        public string id { get; set; }
+        public User2 user { get; set; }
+    }
+
+    public class RootObject
+    {
+        public Pagination pagination { get; set; }
+        public Meta meta { get; set; }
+        public List<Datum> data { get; set; }
     }
 }

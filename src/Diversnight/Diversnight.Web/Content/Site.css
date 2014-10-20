@@ -1,43 +1,176 @@
-﻿html {
-    height: 100%;
+﻿
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
 }
+
 body {
-    height: 100%;
-    margin: 0;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    margin-bottom: 0;
     padding-top: 50px;
-    padding-bottom: 20px;
-    background: #193441;
+    padding-bottom: 0;
+    background: #404040;
+    font-family: "ff-tisa-web-pro";
     color: white;
 }
-
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+h1, h2, h3, h4, h5, h6 {
+    font-family: "futura-pt";
+    text-transform: uppercase;
+    color: #f0f0f0;
+    font-weight: bold;
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
-*/
-.dl-horizontal dt {
-    white-space: normal;
+.footer {
+    background: rgba(0, 155, 240, 0.3);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-top: 20px;
+}
+@media (min-width: 992px) {
+    body {
+        /* Margin bottom by footer height */
+        margin-bottom: 120px;
+        padding-top: 70px;
+        padding-bottom: 30px;
+    }
+    .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        /* Set the fixed height of the footer here */
+        height: 100px;
+    }
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
+.navbar-inverse {
+    background: rgba(0, 155, 240, 0.75);
+    border-bottom: none;
+}
+.navbar-brand {
+    padding: 8px 15px;
+}
+.navbar-inverse .navbar-nav>li>a {
+    color: rgba(255, 255, 255, 0.75);
+    font-family: "futura-pt";
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+.navbar-inverse .navbar-nav > li > a:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  width: auto;
+}
+
+input {
     max-width: 280px;
 }
 
+img {
+    max-width: 100%;
+}
+
 .well {
-    background: #3E606F;
-    color: #B2D4DC;
     border: none;
-    -webkit-border-radius: 0;
-    -moz-border-radius: 0;
-    -o-border-radius: 0;
     border-radius: 0;
+    background: rgba(0, 155, 240, 0.5);
+}
+
+    .well.half-height {
+        height: 170px;
+        padding: 35px 50px;
+
+    }
+    .center-this {
+    }
+.well a.large-link {
+    font-family: "futura-pt";
+    font-weight: bold;
+    font-size: 36px;
+    color: rgba(255, 255, 255, 0.75);
+}
+.well a.large-link:hover {
+    color: white;
+    text-transform: none;
+}
+
+.well.white-well {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+h2, .h2 {
+    font-size: 36px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.75);
+}
+.well > h2,
+.well > h4 {
+    margin-top: 0;
+}
+p {
+    font-size: 16px;
+    line-height: 1.5em;
+}
+
+.footer {
+    color: white;
+}
+.footer p {
+    font-family: "futura-pt";
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: white;
+}
+
+.footer ul {
+    color: rgba(255, 255, 255, 0.5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.footer ul li {
+    margin: 0;
+    padding: 0;
+}
+.footer ul li a {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: "futura-pt";
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-size: 13px;
+    padding: 2px 5px;
+}
+.footer ul li a:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.25);
+    text-decoration: none;
+}
+
+
+.white-quote {
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    color: #202020;
+}
+.white-quote p {
+    font-style: italic;
 }
