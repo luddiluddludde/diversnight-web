@@ -12,14 +12,11 @@ using Microsoft.AspNet.Identity;
 namespace Diversnight.Web.Controllers
 {
     [CustomAuthorize(Roles = "Admin")]
-    public class ClaimsController : Controller
+    public class ClaimsController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-
-        // GET: Claims
         public ActionResult Index()
         {
-            return View(db.Claims.Where(c => c.ApprovedTime == null).ToList());
+            return View(_db.Claims.Where(c => c.ApprovedTime == null).ToList());
         }
 
         public ActionResult Approve(int? id)
@@ -28,7 +25,7 @@ namespace Diversnight.Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var claim = db.Claims.Find(id);
+            var claim = _db.Claims.Find(id);
             if (claim == null)
             {
                 return HttpNotFound();
@@ -36,46 +33,34 @@ namespace Diversnight.Web.Controllers
             return View(claim);
         }
 
-        // POST: Claims/Delete/5
         [HttpPost, ActionName("Approve")]
         [ValidateAntiForgeryToken]
         public ActionResult ApproveConfirmed(int id)
         {
-            var userId = User.Identity.GetUserId();
-            var currentUser = db.Users.FirstOrDefault(u => u.Id == userId);
-            if (currentUser != null && currentUser.Contact != null)
+            if (CurrentUser != null && CurrentUser.Contact != null)
             {
-
-                var claim = db.Claims.Find(id);
+                var claim = _db.Claims.Find(id);
                 if (claim == null)
                 {
                     return HttpNotFound();
                 }
                 if (claim.Organization.Contacts.All(c => c.Id != claim.Contact.Id))
                 {
-                        claim.Organization.Contacts.Add(claim.Contact);
-                        claim.ApprovedBy = currentUser.Contact;
-                        claim.ApprovedTime = DateTime.Now;
-                        db.SaveChanges();
+                    claim.Organization.Contacts.Add(claim.Contact);
+                    claim.ApprovedBy = CurrentUser.Contact;
+                    claim.ApprovedTime = DateTime.Now;
+                    _db.SaveChanges();
 
-                        if (!EmailHelper.Instance.SendMail(claim.Contact.Email, "Organization claim approved",
-                            String.Format("<p>Your request to be a contact for {0} has been approved by {1}.</p><p>Regards,<br />Diversnight</p>", claim.Organization.Name, currentUser.Contact.Name)))
-                        {
-                            return Content("Email not sent? Check Mandrill..");
-                        }
-
+                    if (!EmailHelper.Instance.SendMail(claim.Contact.Email, "Organization claim approved",
+                        String.Format(
+                            "<p>Your request to be a contact for {0} has been approved by {1}.</p><p>Regards,<br />Diversnight</p>",
+                            claim.Organization.Name, CurrentUser.Contact.Name)))
+                    {
+                        return Content("Email not sent? Check Mandrill..");
+                    }
                 }
             }
             return RedirectToAction("Index");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

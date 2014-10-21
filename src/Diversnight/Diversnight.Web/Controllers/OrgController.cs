@@ -19,27 +19,12 @@ using Microsoft.AspNet.Identity.Owin;
 
 namespace Diversnight.Web.Controllers
 {
-    public class OrgController : Controller
+    public class OrgController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        private ApplicationUserManager _userManager;
-
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
         // GET: Org
         public ActionResult Index()
         {
-            return View(db.Organizations.OrderBy(o => o.Name).ToList());
+            return View(_db.Organizations.OrderBy(o => o.Name).ToList());
         }
 
         // GET: Org/Details/5
@@ -49,19 +34,17 @@ namespace Diversnight.Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Organization organization = db.Organizations.Find(id);
+            var organization = _db.Organizations.Find(id);
             if (organization == null)
                 return HttpNotFound();
 
-            var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user != null && user.Contact != null) { 
-                var contact = db.Contacts.Find(user.Contact.Id);
-                if (contact != null && organization.Contacts.All(c => c.Id != contact.Id))
+            if (CurrentUser != null && CurrentUser.Contact != null) { 
+                if (organization.Contacts.All(c => c.Id != CurrentUser.Contact.Id))
                 {
                     ViewBag.ShowClaimButton = true;
                 }
 
-                if (db.Claims.Any(c => c.Organization.Id == organization.Id && c.Contact.Id == contact.Id && c.ApprovedTime == null))
+                if (_db.Claims.Any(c => c.Organization.Id == organization.Id && c.Contact.Id == CurrentUser.Contact.Id && c.ApprovedTime == null))
                 {
                     ViewBag.ShowClaimPending = true;
                 }
@@ -77,26 +60,21 @@ namespace Diversnight.Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var org = db.Organizations.Find(id);
+            var org = _db.Organizations.Find(id);
             if (org == null)
                 return HttpNotFound();
 
-            var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user == null || user.Contact == null)
+            if (CurrentUser == null || CurrentUser.Contact == null)
                 return HttpNotFound();
 
-            var contact = db.Contacts.Find(user.Contact.Id);
-            if (contact == null)
-                return HttpNotFound();
-
-            db.Claims.Add(new OrganizationClaim()
+            _db.Claims.Add(new OrganizationClaim()
             {
                 Organization = org,
-                Contact = contact,
+                Contact = CurrentUser.Contact,
                 CreatedTime = DateTime.Now
             });
-            
-            db.SaveChanges();
+
+            _db.SaveChanges();
 
             return RedirectToAction("Details", "Org", new {id = id});
         }
@@ -127,7 +105,7 @@ namespace Diversnight.Web.Controllers
                 {
                     try
                     {
-                        var org = db.Organizations.FirstOrDefault(o => o.Name == record.Name);
+                        var org = _db.Organizations.FirstOrDefault(o => o.Name == record.Name);
                         if (org == null)
                         {
                             org = new Organization()
@@ -135,8 +113,8 @@ namespace Diversnight.Web.Controllers
                                 Name = record.Name,
                                 Website = record.Website
                             };
-                            db.Organizations.Add(org);
-                            db.SaveChanges();
+                            _db.Organizations.Add(org);
+                            _db.SaveChanges();
                         }
                         if (!record.Website.IsNullOrWhiteSpace())
                             org.Website = record.Website;
@@ -144,7 +122,7 @@ namespace Diversnight.Web.Controllers
                         if (!string.IsNullOrWhiteSpace(org.Website) && !org.Website.StartsWith("http"))
                             org.Website = "http://" + org.Website;
 
-                        var contact = db.Contacts.FirstOrDefault(c => c.Email == record.ContactEmail);
+                        var contact = _db.Contacts.FirstOrDefault(c => c.Email == record.ContactEmail);
                         if (contact == null)
                         {
                             var firstname = record.ContactName;
@@ -161,7 +139,7 @@ namespace Diversnight.Web.Controllers
                                 Email = record.ContactEmail.Trim(),
                                 Phone = record.ContactPhone.Trim(),
                             };
-                            db.Contacts.Add(contact);
+                            _db.Contacts.Add(contact);
                             contactsAdded++;
                             org.Contacts.Add(contact);
                         }
@@ -171,14 +149,14 @@ namespace Diversnight.Web.Controllers
                         if (parsedYear)
                         {
                             var site =
-                                db.Sites.FirstOrDefault(
+                                _db.Sites.FirstOrDefault(
                                     s => s.Name == record.SiteName && s.City == record.SiteCity && s.Year == year);
                             if (site == null)
                             {
                                 int divers;
                                 bool parsedDivers = int.TryParse(record.SiteDivers, out divers);
 
-                                var country = db.Countries.FirstOrDefault(c => c.Name == record.SiteCountry);
+                                var country = _db.Countries.FirstOrDefault(c => c.Name == record.SiteCountry);
                                 if (country != null)
                                 {
                                     site = new Site()
@@ -190,7 +168,7 @@ namespace Diversnight.Web.Controllers
                                         Year = year,
                                         Divers = parsedDivers ? divers : 0
                                     };
-                                    db.Sites.Add(site);
+                                    _db.Sites.Add(site);
                                 }
                                 else
                                 {
@@ -202,7 +180,7 @@ namespace Diversnight.Web.Controllers
                         {
                             throw new Exception("Unable to parse year");
                         }
-                        db.SaveChanges();
+                        _db.SaveChanges();
                     }
                     catch (Exception ex)
                     {
@@ -239,8 +217,8 @@ namespace Diversnight.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Organizations.Add(organization);
-                db.SaveChanges();
+                _db.Organizations.Add(organization);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -254,7 +232,7 @@ namespace Diversnight.Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Organization organization = db.Organizations.Find(id);
+            Organization organization = _db.Organizations.Find(id);
             if (organization == null)
             {
                 return HttpNotFound();
@@ -271,8 +249,8 @@ namespace Diversnight.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(organization).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(organization).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(organization);
@@ -285,7 +263,7 @@ namespace Diversnight.Web.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Organization organization = db.Organizations.Find(id);
+            Organization organization = _db.Organizations.Find(id);
             if (organization == null)
             {
                 return HttpNotFound();
@@ -298,19 +276,10 @@ namespace Diversnight.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Organization organization = db.Organizations.Find(id);
-            db.Organizations.Remove(organization);
-            db.SaveChanges();
+            Organization organization = _db.Organizations.Find(id);
+            _db.Organizations.Remove(organization);
+            _db.SaveChanges();
             return RedirectToAction("Index");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 
