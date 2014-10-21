@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Diversnight.Web.Models
@@ -13,6 +14,11 @@ namespace Diversnight.Web.Models
 
         [Required]
         public string Lastname { get; set; }
+
+        public string Name
+        {
+            get { return String.Format("{0} {1}", Firstname, Lastname); }
+        }
 
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }

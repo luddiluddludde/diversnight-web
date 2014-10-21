@@ -32,6 +32,7 @@ namespace Diversnight.Web.Models
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Site> Sites { get; set; }
         public DbSet<InstagramPicture> Pictures { get; set; }
+        public DbSet<OrganizationClaim> Claims { get; set; }
 
         public static ApplicationDbContext Create()
         {

@@ -51,8 +51,21 @@ namespace Diversnight.Web.Controllers
             }
             Organization organization = db.Organizations.Find(id);
             if (organization == null)
-            {
                 return HttpNotFound();
+
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            if (user != null) { 
+                var contact = db.Contacts.Find(user.Contact.Id);
+                if (contact != null && organization.Contacts.All(c => c.Id != contact.Id))
+                {
+                    ViewBag.ShowClaimButton = true;
+                }
+
+                if (db.Claims.Any(c => c.Organization.Id == organization.Id && c.Contact.Id == contact.Id))
+                {
+                    ViewBag.ShowClaimPending = true;
+                }
+
             }
             return View(organization);
         }
@@ -60,9 +73,6 @@ namespace Diversnight.Web.Controllers
         // GET: Site/Edit/5
         public ActionResult Claim(int? id)
         {
-            if (!User.IsInRole("Admin"))
-                return HttpNotFound();
-
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -72,14 +82,20 @@ namespace Diversnight.Web.Controllers
                 return HttpNotFound();
 
             var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user == null)
+            if (user == null || user.Contact == null)
                 return HttpNotFound();
 
-            var contact = user.Contact;
+            var contact = db.Contacts.Find(user.Contact.Id);
             if (contact == null)
                 return HttpNotFound();
 
-            org.Contacts.Add(db.Contacts.FirstOrDefault(c => c.Id == contact.Id));
+            db.Claims.Add(new OrganizationClaim()
+            {
+                Organization = org,
+                Contact = contact,
+                CreatedTime = DateTime.Now
+            });
+            
             db.SaveChanges();
 
             return RedirectToAction("Details", "Org", new {id = id});
