@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Diversnight.Web.Models;
+using Microsoft.AspNet.Identity;
 
 namespace Diversnight.Web.Controllers
 {
@@ -18,101 +19,53 @@ namespace Diversnight.Web.Controllers
         // GET: Claims
         public ActionResult Index()
         {
-            return View(db.Claims.ToList());
+            return View(db.Claims.Where(c => c.ApprovedTime == null).ToList());
         }
 
-        // GET: Claims/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Approve(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            OrganizationClaim organizationClaim = db.Claims.Find(id);
-            if (organizationClaim == null)
+            var claim = db.Claims.Find(id);
+            if (claim == null)
             {
                 return HttpNotFound();
             }
-            return View(organizationClaim);
-        }
-
-        // GET: Claims/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Claims/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,CreatedTime,ApprovedTime")] OrganizationClaim organizationClaim)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Claims.Add(organizationClaim);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(organizationClaim);
-        }
-
-        // GET: Claims/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            OrganizationClaim organizationClaim = db.Claims.Find(id);
-            if (organizationClaim == null)
-            {
-                return HttpNotFound();
-            }
-            return View(organizationClaim);
-        }
-
-        // POST: Claims/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,CreatedTime,ApprovedTime")] OrganizationClaim organizationClaim)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(organizationClaim).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(organizationClaim);
-        }
-
-        // GET: Claims/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            OrganizationClaim organizationClaim = db.Claims.Find(id);
-            if (organizationClaim == null)
-            {
-                return HttpNotFound();
-            }
-            return View(organizationClaim);
+            return View(claim);
         }
 
         // POST: Claims/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Approve")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult ApproveConfirmed(int id)
         {
-            OrganizationClaim organizationClaim = db.Claims.Find(id);
-            db.Claims.Remove(organizationClaim);
-            db.SaveChanges();
+            var userId = User.Identity.GetUserId();
+            var currentUser = db.Users.FirstOrDefault(u => u.Id == userId);
+            if (currentUser != null && currentUser.Contact != null)
+            {
+
+                var claim = db.Claims.Find(id);
+                if (claim == null)
+                {
+                    return HttpNotFound();
+                }
+                if (claim.Organization.Contacts.All(c => c.Id != claim.Contact.Id))
+                {
+                        claim.Organization.Contacts.Add(claim.Contact);
+                        claim.ApprovedBy = currentUser.Contact;
+                        claim.ApprovedTime = DateTime.Now;
+                        db.SaveChanges();
+
+                        if (!EmailHelper.Instance.SendMail(claim.Contact.Email, "Organization claim approved",
+                            String.Format("<p>Your request to be a contact for {0} has been approved by {1}.</p><p>Regards,<br />Diversnight</p>", claim.Organization.Name, currentUser.Contact.Name)))
+                        {
+                            return Content("Email not sent? Check Mandrill..");
+                        }
+
+                }
+            }
             return RedirectToAction("Index");
         }
 

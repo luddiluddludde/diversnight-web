@@ -188,6 +188,7 @@
     <Compile Include="Controllers\OrgController.cs" />
     <Compile Include="Controllers\SiteController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="EmailHelper.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -296,7 +297,7 @@
     <Content Include="Views\Instagram\Delete.cshtml" />
     <Content Include="Views\Instagram\Index.cshtml" />
     <Content Include="Views\Claims\Create.cshtml" />
-    <Content Include="Views\Claims\Delete.cshtml" />
+    <Content Include="Views\Claims\Approve.cshtml" />
     <Content Include="Views\Claims\Details.cshtml" />
     <Content Include="Views\Claims\Edit.cshtml" />
     <Content Include="Views\Claims\Index.cshtml" />

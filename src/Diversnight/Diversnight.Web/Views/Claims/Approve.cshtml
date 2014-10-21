@@ -1,0 +1,38 @@
+﻿@model Diversnight.Web.Models.OrganizationClaim
+
+@{
+    ViewBag.Title = "Approve claim";
+}
+<h2>Approve claim</h2>
+
+<h3>Are you sure you want to approve this?</h3>
+<div>
+    <h4>Organization claim</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Contact)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Contact.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Organization)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Organization.Name)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Approve" class="btn btn-default" /> |
+        </div>
+    }
+</div>
