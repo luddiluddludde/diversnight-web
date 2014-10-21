@@ -61,7 +61,7 @@ namespace Diversnight.Web.Controllers
                     ViewBag.ShowClaimButton = true;
                 }
 
-                if (db.Claims.Any(c => c.Organization.Id == organization.Id && c.Contact.Id == contact.Id))
+                if (db.Claims.Any(c => c.Organization.Id == organization.Id && c.Contact.Id == contact.Id && c.ApprovedTime == null))
                 {
                     ViewBag.ShowClaimPending = true;
                 }
