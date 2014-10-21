@@ -54,7 +54,7 @@ namespace Diversnight.Web.Controllers
                 return HttpNotFound();
 
             var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user != null) { 
+            if (user != null && user.Contact != null) { 
                 var contact = db.Contacts.Find(user.Contact.Id);
                 if (contact != null && organization.Contacts.All(c => c.Id != contact.Id))
                 {
