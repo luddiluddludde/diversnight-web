@@ -1,39 +1,76 @@
-﻿@model Diversnight.Web.Models.IndexViewModel
+﻿@using System.Web.UI.WebControls
+@model Diversnight.Web.Models.Contact
 @{
     ViewBag.Title = "Manage your profile";
 }
 
 <h2>@ViewBag.Title</h2>
 
-<p class="text-success">@ViewBag.StatusMessage</p>
-
+@if (!string.IsNullOrWhiteSpace(ViewBag.StatusMessage)) { 
+    <div class="alert @ViewBag.StatusMessageLevel alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        @ViewBag.StatusMessage
+    </div>
+}
 <div class="row">
     <div class="col-md-6">
+        @if (Model.Id == 0)
+        {
+            <p class="alert alert-warning">You must update your contact information before create or update organizations or dive sites.</p>
+        }
         <h3>Contact information:</h3>
         <div class="well">
-            @if (Model.Contact == null)
+            
+            @using (Html.BeginForm())
             {
-                <p>No contact information. Please add.</p>
-            }
-            else
-            {
-                <dl class="dl-horizontal">
-                    <dt>Name:</dt>
-                    <dd>@Model.Contact.Firstname @Model.Contact.Lastname</dd>
+                @Html.AntiForgeryToken()
 
-                    <dt>Email:</dt>
-                    <dd>@Model.Contact.Email</dd>
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+                    @Html.HiddenFor(model => model.Id)
+                    @Html.HiddenFor(model => model.IsActive)
 
-                    <dt>Phone:</dt>
-                    <dd>@Model.Contact.Phone</dd>
-                </dl>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Name, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-5">
+                            @Html.EditorFor(model => model.Firstname, new {htmlAttributes = new {@class = "form-control", placeholder = "Firstname"}})
+                            @Html.ValidationMessageFor(model => model.Firstname, "", new {@class = "text-danger"})
+                        </div>
+                        <div class="col-md-5">
+                            @Html.EditorFor(model => model.Lastname, new {htmlAttributes = new {@class = "form-control", placeholder = "Lastname"}})
+                            @Html.ValidationMessageFor(model => model.Lastname, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Email, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Email, new {htmlAttributes = new {@class = "form-control", placeholder = "A valid email address"}})
+                            @Html.ValidationMessageFor(model => model.Email, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Phone, htmlAttributes: new {@class = "control-label col-md-2"})
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Phone, new {htmlAttributes = new {@class = "form-control", placeholder = "Phone number including country code"}})
+                            @Html.ValidationMessageFor(model => model.Phone, "", new {@class = "text-danger"})
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Save" class="btn btn-default" />
+                        </div>
+                    </div>
+                </div>
             }
         </div>
     </div>
     <div class="col-md-6">
 
         <h3>Your organization:</h3>
-        @if (Model.Organization == null)
+        @if (Model.Organizer == null)
         {
             <p>No connected organization. Claim or create one.</p>
         }
@@ -41,9 +78,9 @@
         {
             <div class="well">
 
-                <h4>@Model.Organization.Name</h4>
-                <p>@Html.DisplayFor(model => model.Organization.Website)</p>
-                <p><em>@(!string.IsNullOrWhiteSpace(Model.Organization.Description) ? Model.Organization.Description : "No description")</em></p>
+                <h4>@Model.Organizer.Name</h4>
+                <p>@Html.DisplayFor(model => model.Organizer.Website)</p>
+                <p><em>@(!string.IsNullOrWhiteSpace(Model.Organizer.Description) ? Model.Organizer.Description : "No description")</em></p>
             </div>
             <div class="btn-group pull-right">
                 <a class="btn btn-default">Manage</a>
@@ -53,44 +90,40 @@
     </div>
 </div>
         <hr />
-        <div>
-            <h3>Account settings</h3>
-            <dl class="dl-horizontal">
-                <dt>Password:</dt>
-                <dd>
-                    [
-                    @if (Model.HasPassword)
-                    {
-                        @Html.ActionLink("Change your password", "ChangePassword")
-                    }
-                    else
-                    {
-                        @Html.ActionLink("Create", "SetPassword")
-                    }
-                    ]
-                </dd>
-                <dt>External Logins:</dt>
-                <dd>
-                    @Model.Logins.Count [
-                    @Html.ActionLink("Manage", "ManageLogins") ]
-                </dd>
+<div>
+    <h3>Account settings</h3>
+    <dl class="dl-horizontal">
+        <dt>Password:</dt>
+        <dd>
+            [
+            @if (ViewBag.IndexModel.HasPassword)
+            {
+                @Html.ActionLink("Change your password", "ChangePassword")
+            }
+            else
+            {
+                @Html.ActionLink("Create", "SetPassword")
+            }
+            ]
+        </dd>
+        <dt>External Logins:</dt>
+        <dd>
+            @ViewBag.IndexModel.Logins.Count [
+            @Html.ActionLink("Manage", "ManageLogins") ]
+        </dd>
 
-                <dt>Roles:</dt>
-                <dd>
-                    @foreach (string role in ViewBag.Roles)
-                    {
-                        @role
-                    }
-                </dd>
-                @if (Model.Contact != null)
-                {
-                    <dt>Contact:</dt>
-                    <dd>@Model.Contact.Firstname @Model.Contact.Lastname</dd>
-                }
-                else
-                {
-                    <dt>Contact:</dt>
-                    <dd>No connected contact</dd>
-                }
-            </dl>
-        </div>
+        <dt>Roles:</dt>
+        <dd>
+            @foreach (string role in ViewBag.Roles)
+            {
+                @role
+            }
+        </dd>
+    </dl>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+    </script>
+}

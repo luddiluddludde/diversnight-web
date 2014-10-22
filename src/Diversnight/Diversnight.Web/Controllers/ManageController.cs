@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -12,7 +13,7 @@ using Diversnight.Web.Models;
 namespace Diversnight.Web.Controllers
 {
     [Authorize]
-    public class ManageController : Controller
+    public class ManageController : BaseController
     {
         public ManageController()
         {
@@ -40,6 +41,7 @@ namespace Diversnight.Web.Controllers
         // GET: /Manage/Index
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
+            ViewBag.UserName = CurrentUser.UserName;
             ViewBag.StatusMessage =
                 message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
                 : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
@@ -47,9 +49,16 @@ namespace Diversnight.Web.Controllers
                 : message == ManageMessageId.Error ? "An error has occurred."
                 : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
                 : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+                : message == ManageMessageId.SaveContactSuccess ? "Your contact info was saved."
+                : message == ManageMessageId.UpdateEmailFailed ? "Unable to update email."
                 : "";
 
-            var model = new IndexViewModel
+            ViewBag.StatusMessageLevel =
+                message == ManageMessageId.Error ? "alert-danger"
+                : message == ManageMessageId.UpdateEmailFailed ? "alert-danger"
+                : "alert-success";
+
+            var indexModel = new IndexViewModel
             {
                 HasPassword = HasPassword(),
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
@@ -57,18 +66,74 @@ namespace Diversnight.Web.Controllers
                 Logins = await UserManager.GetLoginsAsync(User.Identity.GetUserId()),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
             };
-            var user = UserManager.FindById(User.Identity.GetUserId());
-            if (user.Contact != null) { 
-                model.Contact = user.Contact;
 
-                if (user.Contact.Organizer != null)
-                    model.Organization = user.Contact.Organizer;
-            }
-
-
-
+            var contact = new Contact();
+            if (CurrentUser.Contact != null)
+                contact = CurrentUser.Contact;
 
             ViewBag.Roles = UserManager.GetRoles(User.Identity.GetUserId());
+            ViewBag.IndexModel = indexModel;
+            return View(contact);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Index([Bind(Include = "Id,Firstname,Lastname,Email,Phone,IsActive")]Contact model)
+        {
+            bool emailUpdateFailed = false;
+            if (ModelState.IsValid)
+            {
+                if (CurrentUser.Contact != null && model.Id == CurrentUser.Contact.Id)
+                {
+                    CurrentUser.Contact.Firstname = model.Firstname;
+                    CurrentUser.Contact.Lastname = model.Lastname;
+                    CurrentUser.Contact.Email = model.Email;
+                    CurrentUser.Contact.Phone = model.Phone;
+
+                    if (CurrentUser.Email != model.Email || CurrentUser.UserName != model.Email)
+                    {
+                        var user = await UserManager.FindByIdAsync(CurrentUser.Id);
+                        user.Email = model.Email;
+                        user.UserName = model.Email;
+
+                        var result = UserManager.Update(user);
+                        if (result.Succeeded == false)
+                        {
+                            emailUpdateFailed = true;
+                            CurrentUser.Email = CurrentUser.UserName;
+                            CurrentUser.Contact.Email = CurrentUser.UserName;
+                        }
+                    }
+                }
+                else
+                {
+                    model.IsActive = true;
+                    _db.Contacts.Add(model);
+
+                    if (CurrentUser.Email != model.Email || CurrentUser.UserName != model.Email)
+                    {
+                        var user = await UserManager.FindByIdAsync(CurrentUser.Id);
+                        user.Email = model.Email;
+                        user.UserName = model.Email;
+
+                        CurrentUser.Contact = model;
+
+                        var result = UserManager.Update(user);
+                        if (result.Succeeded == false)
+                        {
+                            CurrentUser.Email = CurrentUser.UserName;
+                            CurrentUser.Contact.Email = CurrentUser.UserName;
+                        }
+                    }
+                    CurrentUser.Contact = model;
+                }
+
+                _db.SaveChanges();
+                if (emailUpdateFailed)
+                    return RedirectToAction("Index", new {Message = ManageMessageId.UpdateEmailFailed});
+                return RedirectToAction("Index", new { Message = ManageMessageId.SaveContactSuccess });
+            }
+
             return View(model);
         }
 
@@ -399,6 +464,8 @@ namespace Diversnight.Web.Controllers
             SetPasswordSuccess,
             RemoveLoginSuccess,
             RemovePhoneSuccess,
+            SaveContactSuccess,
+            UpdateEmailFailed,
             Error
         }
 

@@ -20,6 +20,7 @@ namespace Diversnight.Web.Models
             get { return String.Format("{0} {1}", Firstname, Lastname); }
         }
 
+        [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
