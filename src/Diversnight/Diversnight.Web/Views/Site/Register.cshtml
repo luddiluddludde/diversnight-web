@@ -1,4 +1,5 @@
-﻿@model Diversnight.Web.Models.RegisterSiteViewModel
+﻿@using Diversnight.Web.Models
+@model Diversnight.Web.Models.RegisterSiteViewModel
 
 @{
     ViewBag.Title = "Register a dive site";
@@ -72,7 +73,9 @@
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary">Register site</button>
-                            <button id="copyLastYearButton" type="button" class="btn btn-default">Copy from last year</button>
+                            @if (ViewBag.ShowCopyButton == true) { 
+                                <button id="copyLastYearButton" type="button" class="btn btn-default">Copy from last year</button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -97,9 +100,15 @@ else
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 
-    <script>
-        $("#copyLastYearButton").click(function () {
-            alert("All right");
-        });
-    </script>
+    @if (ViewBag.ShowCopyButton == true && ViewBag.CopySite is Site) { 
+        <script>
+            $("#copyLastYearButton").click(function () {
+                $("#Organization").val(@ViewBag.CopySite.Organization.Id);
+                $("#Name").val("@ViewBag.CopySite.Name");
+                $("#Description").val("@ViewBag.CopySite.Description");
+                $("#City").val("@ViewBag.CopySite.City");
+                $("#Country").val(@ViewBag.CopySite.Country.Id);
+            });
+        </script>
+    }
 }

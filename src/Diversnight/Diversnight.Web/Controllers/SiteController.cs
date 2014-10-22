@@ -80,6 +80,13 @@ namespace Diversnight.Web.Controllers
 
                 model.Organizations = orgItems;
                 model.Countries = countryItems;
+
+                var oldSite = user.Contact.Organizer.Sites.FirstOrDefault(s => s.Year == 2013);
+                if (oldSite != null)
+                {
+                    ViewBag.ShowCopyButton = true;
+                    ViewBag.CopySite = oldSite;
+                }
             }
 
             return View(model);
