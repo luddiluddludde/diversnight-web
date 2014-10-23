@@ -27,6 +27,13 @@ h1, h2, h3, h4, h5, h6 {
     padding-bottom: 20px;
     margin-top: 20px;
 }
+.footer div > .hide-before-hover {
+    visibility: hidden;
+    font-weight: normal;
+}
+    .footer div:hover > .hide-before-hover {
+        visibility: visible;
+    }
 @media (min-width: 992px) {
     body {
         /* Margin bottom by footer height */

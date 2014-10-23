@@ -10,6 +10,7 @@ namespace Diversnight.Web
         public static class Diversnight
         {
             public static string Admins { get { return ReadFromFile(); } }
+            public static string Environment { get { return ReadFromFile(); } }
 
             private static string ReadFromFile([CallerMemberName] string key = null)
             {
