@@ -114,13 +114,17 @@ else
         }
 
         $("#Name, #City, #Country").change(function() {
+            FindLocation();
+        });
+
+        function FindLocation() {
             var address = $("#Name").val() + ", " + $("#City").val() + $("#Country option:selected").text();
-            geocoder.geocode({ 'address': address }, function(results, status) {
+            geocoder.geocode({ 'address': address }, function (results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                     AddMarker(results[0].geometry.location, 11);
                 } else {
                     address = $("#City").val() + $("#Country option:selected").text();
-                    geocoder.geocode({ 'address': address }, function(results, status) {
+                    geocoder.geocode({ 'address': address }, function (results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
                             AddMarker(results[0].geometry.location, 11);
                         } else {
@@ -136,7 +140,7 @@ else
                     });
                 }
             });
-        });
+        }
 
         function AddMarker(location, level) {
             RemoveMarkers(map, markers);
@@ -166,6 +170,8 @@ else
                 $("#Description").val("@ViewBag.CopySite.Description");
                 $("#City").val("@ViewBag.CopySite.City");
                 $("#Country").val(@ViewBag.CopySite.Country.Id);
+
+                FindLocation();
             });
         </script>
     }
