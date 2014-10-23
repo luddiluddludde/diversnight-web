@@ -86,7 +86,7 @@ namespace Diversnight.Web.Controllers
                 model.Organizations = orgItems;
                 model.Countries = countryItems;
 
-                var oldSite = user.Contact.Organizer.Sites.FirstOrDefault(s => s.Year == 2013);
+                var oldSite = user.Contact.Organizer.Sites.OrderByDescending(s => s.Year).FirstOrDefault(s => s.Year < 2014);
                 if (oldSite != null)
                 {
                     ViewBag.ShowCopyButton = true;
