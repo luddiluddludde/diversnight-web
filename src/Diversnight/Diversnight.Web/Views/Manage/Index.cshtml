@@ -83,8 +83,8 @@
                 <p><em>@(!string.IsNullOrWhiteSpace(Model.Organizer.Description) ? Model.Organizer.Description : "No description")</em></p>
             </div>
             <div class="btn-group pull-right">
-                <a class="btn btn-default">Manage</a>
-                <a class="btn btn-danger">Disconnect</a>
+                @Html.ActionLink("Manage", "Edit", "Org", new { id = Model.Organizer.Id }, new { @class = "btn btn-default"})
+                @Html.ActionLink("Disconnect", "Disconnect", "Org", new { id = Model.Organizer.Id }, new { @class = "btn btn-danger" })
             </div>
         }
     </div>

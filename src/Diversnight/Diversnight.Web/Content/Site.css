@@ -203,3 +203,72 @@ p {
 .instagram-frame a:hover p {
     visibility: visible;
 }
+
+
+
+table.divesite-table,
+table.divesite-table tr,
+table.divesite-table tr th,
+table.divesite-table tr td {
+    border: none;
+    padding: 0;
+}
+table.divesite-table {
+    margin-top: 20px;
+}
+
+table.divesite-table td.divesite-country-header {
+    font-family: 'futura-pt';
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+    padding-top: 20px;
+}
+
+table.divesite-table tr th {
+    font-family: 'futura-pt';
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #c0c0c0;
+    padding-bottom: 5px;
+}
+table.divesite-table tr td {
+    vertical-align: bottom;
+    padding-bottom: 3px;
+}
+table.divesite-table tr th {
+}
+a.country-link {
+    font-family: 'futura-pt';
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+table.divesite-table tr.country-first {
+    margin-top: 4px;
+}
+table.divesite-table tr.country-first td {
+    border-top: 1px solid #808080;
+}
+    table.divesite-table tr.country-first th {
+        border-top: 1px solid #808080;
+        padding-bottom: 0;
+        padding-top: 2px;
+    }
+table.divesite-table tr td.divesite-name {
+    font-family: 'futura-pt';
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+    table.divesite-table tr:hover th,
+    table.divesite-table tr:hover td {
+        background: rgba(0, 155, 240, 0.75);
+        color: rgba(255,255,255,0.75);
+    }
+    table.divesite-table tr:hover th a,
+    table.divesite-table tr:hover td a {
+        color: rgba(255,255,255,0.75);
+
+    }

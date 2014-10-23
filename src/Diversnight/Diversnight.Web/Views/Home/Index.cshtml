@@ -8,7 +8,10 @@
 
         <div class="col-md-4">
             <div class="well well-grey half-height">
-                @ViewBag.SiteCount sites in @ViewBag.CountryCount countries registered for @ViewBag.CountYear
+                @{
+                    string linkText = string.Format("{0} sites in {1} countries", ViewBag.SiteCount, ViewBag.CountryCount);
+                }
+                @Html.ActionLink(linkText, "Index", "Site", null, new { @class = "large-link"})
             </div>
 
             <div class="well half-height">

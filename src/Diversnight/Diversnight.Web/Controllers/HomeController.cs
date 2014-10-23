@@ -15,7 +15,7 @@ namespace Diversnight.Web.Controllers
         {
             var db = new ApplicationDbContext();
 
-            const int countYear = 2013;
+            const int countYear = 2014;
 
             ViewBag.SiteCount = db.Sites.Count(s => s.Year == countYear);
             ViewBag.CountryCount = db.Countries.Count(c => c.Sites.Any(s => s.Year == countYear));

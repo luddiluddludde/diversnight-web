@@ -31,9 +31,14 @@ namespace Diversnight.Web.Controllers
         }
 
         // GET: Site
-        public ActionResult Index()
+        public ActionResult Index(int? year)
         {
-            return View(db.Sites.ToList());
+            if (year == null)
+                year = 2014;
+            ViewBag.Year = year;
+
+            var sites = db.Sites.Where(s => s.Year == year).OrderBy(s => s.Country.Name).ThenBy(s => s.City).ThenBy(s => s.Name).ToList();
+            return View(sites);
         }
 
         // GET: Site/Details/5

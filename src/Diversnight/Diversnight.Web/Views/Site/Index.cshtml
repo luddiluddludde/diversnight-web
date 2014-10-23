@@ -1,34 +1,44 @@
 ﻿@model IEnumerable<Diversnight.Web.Models.Site>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Dive sites " + @ViewBag.Year;
+    var country = 0;
 }
 
-<h2>Index</h2>
+<h2>Dive sites @ViewBag.Year</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
+<table class="table divesite-table">
+    
     <tr>
-        
-        <th>@Html.DisplayNameFor(model => model.Organization)</th>
         <th>@Html.DisplayNameFor(model => model.Country)</th>
         <th>@Html.DisplayNameFor(model => model.City)</th>
         <th>@Html.DisplayNameFor(model => model.Name)</th>
-        <th>@Html.DisplayNameFor(model => model.Year)</th>
-        <th>@Html.DisplayNameFor(model => model.Divers)</th>
+        <th>@Html.DisplayNameFor(model => model.Organization)</th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>@Html.ActionLink(item.Organization.Name, "Details", "Org", new { id = item.Organization.Id }, null)</td>
-        <td>@Html.DisplayFor(modelItem => item.Country.Name)</td>
-        <td>@Html.DisplayFor(modelItem => item.City)</td>
-        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-        <td>@Html.DisplayFor(modelItem => item.Year)</td>
-        <td>@Html.DisplayFor(modelItem => item.Divers)</td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr class="@(item.Country.Id == country ? "" : "country-first")">
+            @if (item.Country.Id != country)
+            {
+                <th>
+                @{country = item.Country.Id;}
+                @Html.ActionLink(item.Country.Name, "Details", "Country", new {id = item.Country.Id}, new {@class = "country-link", name = item.Country.Id})
+                </th>
+            }
+            else
+            {
+                <td></td>
+            }
+
+            <td>@Html.DisplayFor(modelItem => item.City)</td>
+            <td class="divesite-name">
+                @Html.ActionLink(item.Name, "Details", "site", new { id = item.Id }, null)
+            </td>
+            <td>@Html.ActionLink(item.Organization.Name, "Details", "Org", new { id = item.Organization.Id }, null)</td>
+        </tr>
+    }
 
 </table>
+
+@Html.ActionLink("Register your site", "Register", "Site", null, new { @class = "btn btn-primary pull-right"})
