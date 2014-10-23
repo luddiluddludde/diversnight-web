@@ -18,32 +18,32 @@
 
         @Html.ValidationSummary(true, "", new {@class = "text-danger"})
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-6">
 
                 <div class="form-horizontal">
                     <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
+                        <div class="col-sm-offset-3 col-sm-9">
                             <h4>General information</h4>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Organization, new {@class = "col-sm-2 control-label"})
-                        <div class="col-sm-10">
+                        @Html.LabelFor(m => m.Organization, new {@class = "col-sm-3 control-label"})
+                        <div class="col-sm-9">
                             @Html.DropDownListFor(m => m.Organization, Model.Organizations, "Choose organization...", new {@class = "form-control"})
                             @Html.ValidationMessageFor(model => model.Organization, "", new {@class = "text-danger"})
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Name, new {@class = "col-sm-2 control-label"})
-                        <div class="col-sm-10">
+                        @Html.LabelFor(m => m.Name, new {@class = "col-sm-3 control-label"})
+                        <div class="col-sm-9">
                             @Html.EditorFor(m => m.Name, new {htmlAttributes = new {@class = "form-control", placeholder = "Enter site name"}})
                             @Html.ValidationMessageFor(model => model.Name, "", new {@class = "text-danger"})
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Description, new {@class = "col-sm-2 control-label"})
-                        <div class="col-sm-10">
+                        @Html.LabelFor(m => m.Description, new {@class = "col-sm-3 control-label"})
+                        <div class="col-sm-9">
                             @Html.EditorFor(m => m.Description, new {htmlAttributes = new {@class = "form-control", placeholder = "Event description, directions etc."}})
                             @Html.ValidationMessageFor(model => model.Description, "", new {@class = "text-danger"})
                         </div>
@@ -52,26 +52,26 @@
             
                 <div class="form-horizontal">
                     <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
+                        <div class="col-sm-offset-3 col-sm-9">
                             <h4>Location</h4>
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.City, new {@class = "col-sm-2 control-label"})
-                        <div class="col-sm-10">
+                        @Html.LabelFor(m => m.City, new {@class = "col-sm-3 control-label"})
+                        <div class="col-sm-9">
                             @Html.EditorFor(m => m.City, new {htmlAttributes = new {@class = "form-control", placeholder = "Enter city"}})
                             @Html.ValidationMessageFor(model => model.City, "", new {@class = "text-danger"})
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.Country, new {@class = "col-sm-2 control-label"})
-                        <div class="col-sm-10">
+                        @Html.LabelFor(m => m.Country, new {@class = "col-sm-3 control-label"})
+                        <div class="col-sm-9">
                             @Html.DropDownListFor(m => m.Country, Model.Countries, "Choose country...", new {@class = "form-control"})
                             @Html.ValidationMessageFor(model => model.Country, "", new {@class = "text-danger"})
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
+                        <div class="col-sm-offset-3 col-sm-9">
                             <button type="submit" class="btn btn-primary">Register site</button>
                             @if (ViewBag.ShowCopyButton == true) { 
                                 <button id="copyLastYearButton" type="button" class="btn btn-default">Copy from last year</button>
@@ -80,14 +80,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <div class="col-sm-12">
+            <div class="col-md-6">
+                <h4>Map location</h4>
 
-                        </div>
-                    </div>
-                </div>
+                <div id="map-canvas"></div>
             </div>
         </div>
     }
@@ -100,9 +96,71 @@ else
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 
-    @if (ViewBag.ShowCopyButton == true && ViewBag.CopySite is Site) { 
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADUHxANBBNVH7xwtSmgSjqWtzI5TdW97E"></script>
+    <script>
+
+        var geocoder;
+        var map;
+        var markers = [];
+
+        function initialize() {
+            geocoder = new google.maps.Geocoder();
+            var latlng = new google.maps.LatLng(-34.397, 150.644);
+            var mapOptions = {
+                zoom: 8,
+                center: latlng
+            }
+            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        }
+
+        $("#Name, #City, #Country").change(function() {
+            var address = $("#Name").val() + ", " + $("#City").val() + $("#Country option:selected").text();
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    AddMarker(results[0].geometry.location, 11);
+                } else {
+                    address = $("#City").val() + $("#Country option:selected").text();
+                    geocoder.geocode({ 'address': address }, function(results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            AddMarker(results[0].geometry.location, 11);
+                        } else {
+                            address = $("#Country option:selected").text();
+                            geocoder.geocode({ 'address': address }, function (results, status) {
+                                if (status == google.maps.GeocoderStatus.OK) {
+                                    AddMarker(results[0].geometry.location, 11);
+                                } else {
+                                    console.log('Geocode was not successful for the following reason: ' + status);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        function AddMarker(location, level) {
+            RemoveMarkers(map, markers);
+            map.setCenter(location);
+            map.setZoom(level);
+            var marker = new google.maps.Marker({
+                map: map,
+                position: location
+            });
+            markers.push(marker);
+        }
+        function RemoveMarkers() {
+            while (markers.length) {
+                markers.pop().setMap(null);
+            }
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    @if (ViewBag.ShowCopyButton == true && ViewBag.CopySite is Site)
+    {
         <script>
-            $("#copyLastYearButton").click(function () {
+            $("#copyLastYearButton").click(function() {
                 $("#Organization").val(@ViewBag.CopySite.Organization.Id);
                 $("#Name").val("@ViewBag.CopySite.Name");
                 $("#Description").val("@ViewBag.CopySite.Description");
