@@ -16,7 +16,7 @@
     <div class="col-md-6">
         @if (Model.Id == 0)
         {
-            <p class="alert alert-warning">You must update your contact information before create or update organizations or dive sites.</p>
+            <p class="alert alert-warning">You must update your contact information before you can create or update organizations or dive sites.</p>
         }
         <h3>Contact information:</h3>
         <div class="well">
@@ -72,7 +72,7 @@
         <h3>Your organization:</h3>
         @if (Model.Organizer == null)
         {
-            <p>No connected organization. Claim or create one.</p>
+            <p>No connected organization. Claim or create one.<br>To create or claim an existing organization, click the Register your site link.</p>
         }
         else
         {
